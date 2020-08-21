@@ -10,3 +10,4 @@ __pycache__
 *.class
 *.ctxt
 *.iml
+*.bluej
