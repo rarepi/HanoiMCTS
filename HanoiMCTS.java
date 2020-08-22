@@ -7,6 +7,7 @@ public class HanoiMCTS {
         for(int i = 0; i < constraint; i++) {
             best = root.mcts(best);
         }
+        System.out.format("Finished %d MCTS runs.\n", constraint);
         root.printBestPlay();
     }
 }

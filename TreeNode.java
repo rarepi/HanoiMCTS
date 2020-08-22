@@ -61,11 +61,11 @@ public class TreeNode {
         selected.expand();
         System.out.println("Simulating random playout.");
         int turns = selected.simulateRandomPlayout();
-        int score = (bestTurns > turns) ? 1 : 0;
+        int score = (bestTurns >= turns) ? 1 : 0;
         System.out.format("Simulation finished with %d turns.\n", turns);
         System.out.println("Propagating back.");
         selected.backPropagate(score);
-        System.out.println("MCTS finished.\n\n\n");
+        System.out.println("MCTS finished.\n\n");
         return turns;
     }
 
@@ -123,10 +123,21 @@ public class TreeNode {
             return;
 
         List<State> possibleStates = this.getState().getPossibleNextStates();
+
+        // get all states on this path so we can remove them from move consideration
+        List<State> previousStates = new ArrayList<>();
+        TreeNode tempNode = this;
+        while(tempNode != null) {   // loop up till tree node
+            previousStates.add(tempNode.getState());
+            tempNode = tempNode.getParent();
+        }
+        possibleStates.removeAll(previousStates);
+
+        // expand node with all considered followup states
         for(State state : possibleStates) {
             this.children.add(new TreeNode(state, this));
         }
-        System.out.format("Detected %d possible plays.", possibleStates.size());
+        System.out.format("Determined %d possible plays.\n", possibleStates.size());
     }
 
     // PHASE 3: SIMULATION

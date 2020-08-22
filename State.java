@@ -191,6 +191,19 @@ public class State {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        State state = (State) o;
+        return Arrays.deepEquals(towers, state.towers);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(towers);
+    }
+
+    @Override
     public String toString() {
         return "VISITS: " + visits + ", SCORE: " + value + ", BOARD: " + Arrays.deepToString(towers);
     }
