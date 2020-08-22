@@ -152,13 +152,6 @@ public class State {
         }
     }
 
-    public void randomPlay() {
-        List<Tuple<Integer, Integer>> moves = findMoves();
-        Random rand = new Random();
-        Tuple<Integer, Integer> randomMove = moves.get(rand.nextInt(moves.size()));
-        this.move(randomMove.first, randomMove.second);
-    }
-
     //returns whether the game is currently finished or not.
     //the game is assumed to be finished if both stack 0 and stack 1 are empty.
     public boolean isFinished() {
