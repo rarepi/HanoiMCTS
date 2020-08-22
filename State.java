@@ -200,7 +200,7 @@ public class State {
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(towers);
+        return Arrays.deepHashCode(towers);
     }
 
     @Override
