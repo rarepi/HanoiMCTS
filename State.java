@@ -79,7 +79,6 @@ public class State {
 
     //returns a complete list of tuples of possible moves in the current game state
     private List<Tuple<Integer, Integer>> findMoves() {
-        //System.out.println("Finding moves in " + Arrays.deepToString(this.towers));
         List<Tuple<Integer, Integer>> moves = new ArrayList<>();
         for(int stack = 0; stack < this.towers.length; stack++) {
             for (int ring = 0; ring < this.towers[stack].length; ring++) {
@@ -92,14 +91,12 @@ public class State {
                 }
             }
         }
-        //System.out.println("findMoves results: " + moves);
         return moves;
     }
 
     //returns a list of stack indices the given ringSize can move to
     //TODO maybe drop fromIdx check for parameter simplicity at cost of run time?
     private List<Integer> findValidMovesForRing(int fromIdx, int ringSize) {
-        //System.out.format("Finding moves to move ring %d from %d\n", ringSize, fromIdx);
         List<Integer> moveToPositions = new ArrayList<>();
 
         if(ringSize <= 0)

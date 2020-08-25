@@ -47,27 +47,26 @@ public class TreeNode {
     }
 
     public int mcts(int bestTurns) {
-        //System.out.println("Starting MCTS.");
-        //System.out.println(Arrays.deepToString(this.getState().getTowers()));
+
+        //Phase 1: Selection
         TreeNode selected = this;
-        //System.out.println("Selecting best leaf.");
-        int loops = 0;
+        int depth = 0;
         while(!selected.isLeaf()) {
-            loops++;
-            //System.out.format("Looping for best child. (at depth: %d)\n", loops);
             selected = selected.select();
+            depth++;
         }
-        //System.out.println("Best leaf found.");
-        //System.out.println("Expanding best leaf.");
+
+        //Phase 2: Expansion
         selected.expand();
-        //System.out.println("Simulating random playout.");
+
+        //Phase 3: Simulation
         int turns = selected.simulateRandomPlayout();               // turn count of random playout, -1 if bad playout
-        turns = turns < 0 ? Integer.MAX_VALUE : turns + loops;      // turn count from root state to end state of random playout
+        turns = turns < 0 ? Integer.MAX_VALUE : turns + depth;      // turn count from root state to end state of random playout
         int score = (bestTurns >= turns) ? 1 : 0;
-        //System.out.format("Simulation finished with %d turns.\n", turns);
-        //System.out.println("Propagating back.");
+
+        //Phase 4: Backpropagation
         selected.backPropagate(score);
-        //System.out.println("MCTS finished.\n\n");
+
         return Math.min(bestTurns, turns);
     }
 
@@ -102,17 +101,13 @@ public class TreeNode {
         double bestValue = -Double.MAX_VALUE;
 
         int pVisits = this.getState().getVisits();
-        //System.out.format("%d nodes available.\n", children.size());
-        //System.out.format("Comparing UCT values:");
         for (TreeNode child : children) {
             double uctValue = uctValue(pVisits, child.getState().getValue(), child.getState().getVisits());
-            //System.out.format("\n%f (" + child.getState() + ")", uctValue);
             if (uctValue > bestValue) {
                 selected = child;
                 bestValue = uctValue;
             }
         }
-        //System.out.format("\nSelected %f.\n", bestValue);
         return selected;
     }
 
@@ -141,12 +136,11 @@ public class TreeNode {
         for(State state : possibleStates) {
             this.children.add(new TreeNode(state, this));
         }
-        //System.out.format("Determined %d possible plays.\n", possibleStates.size());
     }
 
     // PHASE 3: SIMULATION
     // simulate turns until done
-    // returns the number of random plays it took to finish the game starting from the given node
+    // returns the number of random plays it took to finish the game from the current node
     // returns -1 if the playout is considered a loss
     private int simulateRandomPlayout() {
         State tempState = new State(this.getState());
@@ -159,9 +153,8 @@ public class TreeNode {
         while(!tempState.isFinished()) {
             List<State> possibleStates = tempState.getPossibleNextStates();
             possibleStates.removeAll(previousStates);
-            if(possibleStates.size() == 0)  // simulation reached a suboptimal state, where we'd have to move to a previous state. This is considered a loss.
+            if(possibleStates.size() == 0)  // simulation reached a suboptimal state, in which we'd have to move to a previous state to continue. This is considered a loss.
                 return -1;
-            //System.out.println(possibleStates);
             Random rand = new Random();
             tempState = possibleStates.get(rand.nextInt(possibleStates.size()));
             previousStates.add(tempState);
@@ -173,11 +166,9 @@ public class TreeNode {
     // PHASE 4: BACKPROPAGATION
     private void backPropagate(double lastScore) {
         TreeNode tempNode = this;
-        while(tempNode != null) {   // loop up till tree node
+        while(tempNode != null) {   // loop up till root node
             tempNode.getState().incVisits();
-            //System.out.println(tempNode.getState());
-            double newScore = tempNode.getState().getValue() + lastScore; // TODO: determine good measure
-            //System.out.println("New score: " + newScore);
+            double newScore = tempNode.getState().getValue() + lastScore;
             tempNode.getState().setValue(newScore);
             tempNode = tempNode.getParent();
         }
@@ -220,15 +211,4 @@ public class TreeNode {
     public void setChildren(List<TreeNode> children) {
         this.children = children;
     }
-
-    public TreeNode getRandomChildNode() {
-        int noOfPossibleMoves = this.children.size();
-        int selectRandom = (int) (Math.random() * noOfPossibleMoves);
-        return this.children.get(selectRandom);
-    }
-
-    public TreeNode getMostVisited() {
-        return Collections.max(this.children, Comparator.comparing(c -> { return c.getState().getVisits(); }));
-    }
-
 }
